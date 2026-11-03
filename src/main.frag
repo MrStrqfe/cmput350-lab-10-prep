@@ -2,9 +2,11 @@
 
 uniform vec2 windowSize;
 uniform vec2 mousePos;
+uniform float time;
 
 void main(void) {
     vec2 uv = gl_FragCoord.xy / windowSize;
+    uv.x = fract(uv.x + time * 0.25);
     // BL: black -> BR: red
     vec4 bottom = mix(vec4(0.0, 0.0, 0.0, 1.0), vec4(1.0, 0.0, 0.0, 1.0), uv.x);
     

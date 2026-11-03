@@ -36,6 +36,16 @@ int main() {
     sf::Shader shader(std::filesystem::path{"main.vert"}, std::filesystem::path{"main.frag"});
     // TODO: eventually add another Shader here which uses the blur fragment shader,
     // also create a sf::RenderTexture...
+    
+     // Off-screen image the size of the window, the scene gets drawn here first
+    sf::RenderTexture preBlurRenderTexture(window.getSize());
+
+    // Second shader: same vertex, blur fragment shader
+    sf::Shader postProcessShader(std::filesystem::path{"main.vert"}, std::filesystem::path{"blur.frag"});
+    postProcessShader.setUniform("texture", preBlurRenderTexture.getTexture());
+    postProcessShader.setUniform("textureSize", sf::Glsl::Vec2(window.getSize()));
+
+    
     const auto startTime = std::chrono::steady_clock::now();
 
     while (window.isOpen()) {
@@ -46,16 +56,21 @@ int main() {
         }
         // TODO: set shader uniforms and eventually draw into
         // a RenderTexture first before postprocessing into the window target.
-        window.clear(sf::Color::Black);
         
         shader.setUniform("windowSize", sf::Glsl::Vec2(window.getSize()));
         shader.setUniform("mousePos", sf::Glsl::Vec2(sf::Mouse::getPosition(window)));
-        
         // Record the seconds
         float seconds = std::chrono::duration<float>(std::chrono::steady_clock::now() - startTime).count();
         shader.setUniform("time", seconds);
 
-        window.draw(fullscreenTriangle, &shader);
+        // Pass 1: draw the scene into the off-screen texture
+        preBlurRenderTexture.clear(sf::Color::Black);
+        preBlurRenderTexture.draw(fullscreenTriangle, &shader);
+        preBlurRenderTexture.display();
+
+        // Pass 2: draw the texture onto the window through the blur shader
+        window.clear(sf::Color::Black);
+        window.draw(fullscreenTriangle, &postProcessShader);
         window.display();
     }
     return 0;

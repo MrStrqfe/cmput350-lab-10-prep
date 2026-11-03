@@ -46,6 +46,8 @@ int main() {
         window.clear(sf::Color::Black);
         
         shader.setUniform("windowSize", sf::Glsl::Vec2(window.getSize()));
+        shader.setUniform("mousePos", sf::Glsl::Vec2(sf::Mouse::getPosition(window)));
+        
         window.draw(fullscreenTriangle, &shader);
         window.display();
     }

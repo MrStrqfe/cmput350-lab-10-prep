@@ -44,6 +44,8 @@ int main() {
         // TODO: set shader uniforms and eventually draw into
         // a RenderTexture first before postprocessing into the window target.
         window.clear(sf::Color::Black);
+        
+        shader.setUniform("windowSize", sf::Glsl::Vec2(window.getSize()));
         window.draw(fullscreenTriangle, &shader);
         window.display();
     }
